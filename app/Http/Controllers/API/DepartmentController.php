@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DepartmentController extends Controller
 {
@@ -18,10 +19,16 @@ class DepartmentController extends Controller
         //$d = Department::all();  //select * from departments
         //$d = Department::find(2);
         //$d = Department::where('name','like','%บ%')->get();
-        $d = Department::select('id','name')->orderBy('id','desc')->get();
+        // $d = Department::select('id','name')->orderBy('id','desc')->get();
+        $d = DB::select('select * from departments order by id desc');
 
+        $total = Department::count();
 
-        return response()->json($d, 200);  
+        //return response()->json($d, 200);  
+        return response()->json([
+            'total' => $total,
+            'data'=> $d
+        ], 200); 
     }
 
     /**
@@ -32,7 +39,15 @@ class DepartmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $d = new Department();
+        // $d->name = 'c';
+        $d->name = $request->name;
+        $d->save();
+        
+        return response()->json([
+            'message' => 'เพิ่มข้อมูลเรียบร้อยแล้ว',
+            'data' => $d
+        ], 201);
     }
 
     /**
@@ -41,10 +56,23 @@ class DepartmentController extends Controller
      * @param  \App\Models\Department  $department
      * @return \Illuminate\Http\Response
      */
-    public function show(Department $department)
+    public function show($id)
     {
-        //
-    }
+        
+           // $d = Department::findOrFail($id);  
+        $d = Department::find($id);         
+
+        if($d == null) {
+            return response()->json([
+                'errors' => [
+                'status_code' => 404,
+                'message' => 'ไม่พบข้อมูลนี้'
+                ]
+
+            ], 404);  //404 find no found
+        }
+        return response()->json($d,200);
+        }
 
     /**
      * Update the specified resource in storage.
@@ -64,8 +92,23 @@ class DepartmentController extends Controller
      * @param  \App\Models\Department  $department
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Department $department)
+    public function destroy($id)
     {
-        //
+        $d = Department::find($id);         
+
+        if($d == null) {
+            return response()->json([
+                'errors' => [
+                'status_code' => 404,
+                'message' => 'ไม่พบข้อมูลนี้'
+                ]
+
+            ], 404);  //404 find no found
+        }
+        //ลบ
+        $d->delete();
+        return response()->json([
+            'message' => 'ลบข้อมูลเรียบร้อย'
+        ],200);  
     }
 }
