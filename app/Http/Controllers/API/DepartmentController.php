@@ -81,9 +81,26 @@ class DepartmentController extends Controller
      * @param  \App\Models\Department  $department
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Department $department)
+    public function update(Request $request, $id)
     {
-        //
+        if($id != $request->id) {
+            return response()->json([
+                'errors' => [
+                'status_code' => 400,
+                'message' => 'รหัสแผนกไม่ตรงกัน'
+                ]
+            ], 400); 
+
+        }
+        $d = Department::find($id);
+        $d->name = $request->name;
+        $d->save();
+
+        return response()->json([
+            'message' => 'แก้ไขข้อมูลเรียบร้อย',
+            'data' => $d
+
+        ], 200);
     }
 
     /**
