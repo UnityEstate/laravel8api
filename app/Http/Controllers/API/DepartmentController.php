@@ -31,6 +31,18 @@ class DepartmentController extends Controller
         ], 200); 
     }
 
+    //ค้นหาชื่อแผนก
+    public function search() {
+        $query = request()->query('name');
+        $keyword = '%'.$query.'%';
+        $d = Department::where('name','like',$keyword)->get(); //้ถ้ามี where ต้องมี get
+
+        return response()->json([
+            'data' => $d
+
+        ], 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
